@@ -5,6 +5,7 @@ import { UsuarioService } from './usuario.service';
 import { FiltrosListarUsuarios } from './dto/find-options-listagem.dto';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { Mensagem } from 'src/class/mensagem.class';
+import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 
 @Controller('usuario')
 export class UsuarioController {
@@ -54,5 +55,25 @@ export class UsuarioController {
     ): Promise<Mensagem> {
         await this.usuarioService.create(createUsuarioDto);
         return new Mensagem('Usuário criado com sucesso');
+    }
+
+    @Post(':id')
+    @ApiOkResponse({ description: 'Serviço executado com sucesso' })
+    @ApiInternalServerErrorResponse({
+        description: 'Ocorreu um erro ao atualizar o usuário. Contate o administrador do sistema.',
+    })
+    @ApiOperation({
+        summary: 'Atualiza um usuário',
+        description:
+            'Atualiza os dados de um usuário informando seu id.',
+    })
+    async update(
+        @Param('id', new ParseIntPipe()) id: number,
+        @Body() updateUsuarioDto: UpdateUsuarioDto
+    ): Promise<Mensagem> {
+        if (updateUsuarioDto.nome || updateUsuarioDto.email || updateUsuarioDto.nome || updateUsuarioDto.senha || updateUsuarioDto.nivelAcessoId) {
+            await this.usuarioService.update(id, updateUsuarioDto);
+        }
+        return new Mensagem('Usuario atualizado com sucesso.');
     }
 }

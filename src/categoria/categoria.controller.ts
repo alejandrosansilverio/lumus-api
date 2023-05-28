@@ -61,7 +61,7 @@ export class CategoriaController {
     @Post(':id')
     @ApiOkResponse({ description: 'Serviço executado com sucesso' })
     @ApiInternalServerErrorResponse({
-        description: 'Ocorreu um erro ao incluir Categoria. Contate o administrador do sistema.',
+        description: 'Ocorreu um erro ao atualizar a Categoria. Contate o administrador do sistema.',
     })
     @ApiOperation({
         summary: 'Atualiza uma categoria',
