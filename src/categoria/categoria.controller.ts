@@ -91,7 +91,7 @@ export class CategoriaController {
 
         await this.categoriaService.delete(id);
 
-        return new Mensagem('O categoria foi excluída com sucesso.');
+        return new Mensagem('A categoria foi excluída com sucesso.');
     }
 
 }

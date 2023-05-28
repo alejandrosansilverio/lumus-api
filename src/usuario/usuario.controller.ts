@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
 import { ApiInternalServerErrorResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { UsuarioEntity } from './entities/usuario.entity';
 import { UsuarioService } from './usuario.service';
@@ -75,5 +75,21 @@ export class UsuarioController {
             await this.usuarioService.update(id, updateUsuarioDto);
         }
         return new Mensagem('Usuario atualizado com sucesso.');
+    }
+
+    @Delete(':id/')
+    @ApiOkResponse({ description: 'Serviço executado com sucesso', type: Mensagem })
+    @ApiOperation({
+        summary: 'Apaga um usuario.',
+        description:
+            'Apaga usuario pelo id.',
+    })
+    async delete(
+        @Param('id', new ParseIntPipe()) id: number,
+    ): Promise<Mensagem> {
+
+        await this.usuarioService.delete(id);
+
+        return new Mensagem('O usuario foi excluído com sucesso.');
     }
 }

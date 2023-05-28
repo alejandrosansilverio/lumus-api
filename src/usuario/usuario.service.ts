@@ -1,6 +1,6 @@
 import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { UsuarioEntity } from './entities/usuario.entity';
-import { ILike, IsNull, Like, Not, Repository, UpdateResult } from 'typeorm';
+import { DeleteResult, ILike, IsNull, Like, Not, Repository, UpdateResult } from 'typeorm';
 import { FiltrosListarUsuarios } from './dto/find-options-listagem.dto';
 import { NivelAcessoEntity } from './entities/nivel-acesso.entity';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
@@ -95,5 +95,13 @@ export class UsuarioService {
         if (validacoesPromises.length > 0) {
             await Promise.all(validacoesPromises)
         }
+    }
+
+    async delete(id: number): Promise<DeleteResult> {
+        await this.findOneForFailById(id);//verifica se existe o id informado
+
+        return this.usuarioRepository.delete({ id }).catch(err => {
+            throw new InternalServerErrorException(`Não foi possivel deletar o usuario.`)
+        });
     }
 }
