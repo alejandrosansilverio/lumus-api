@@ -1,8 +1,10 @@
-import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
-import { ApiNotFoundResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
+import { ApiInternalServerErrorResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { UsuarioEntity } from './entities/usuario.entity';
 import { UsuarioService } from './usuario.service';
 import { FiltrosListarUsuarios } from './dto/find-options-listagem.dto';
+import { CreateUsuarioDto } from './dto/create-usuario.dto';
+import { Mensagem } from 'src/class/mensagem.class';
 
 @Controller('usuario')
 export class UsuarioController {
@@ -35,5 +37,22 @@ export class UsuarioController {
         @Query() filtroListagem?: FiltrosListarUsuarios
     ): Promise<UsuarioEntity[]> {
         return await this.usuarioService.findAll(filtroListagem)
+    }
+
+    @Post()
+    @ApiOkResponse({ description: 'Serviço executado com sucesso' })
+    @ApiInternalServerErrorResponse({
+        description: 'Ocorreu um erro ao incluir Usuario. Contate o administrador do sistema.',
+    })
+    @ApiOperation({
+        summary: 'Cria um novo usuario',
+        description:
+            'Cria um novo usuario no sistema.',
+    })
+    async create(
+        @Body() createUsuarioDto: CreateUsuarioDto,
+    ): Promise<Mensagem> {
+        await this.usuarioService.create(createUsuarioDto);
+        return new Mensagem('Usuário criado com sucesso');
     }
 }

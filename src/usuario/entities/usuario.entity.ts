@@ -15,6 +15,9 @@ export class UsuarioEntity {
     @Column()
     senha: string;
 
+    @Column({name: 'nivel_acesso_id'})
+    nivelAcessoId: number;
+
     @Column({ name: 'criado_em', nullable: true })
     criadoEm?: Date;
 
