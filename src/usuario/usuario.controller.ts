@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
-import { ApiInternalServerErrorResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiInternalServerErrorResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UsuarioEntity } from './entities/usuario.entity';
 import { UsuarioService } from './usuario.service';
 import { FiltrosListarUsuarios } from './dto/find-options-listagem.dto';
@@ -7,6 +7,7 @@ import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { Mensagem } from 'src/class/mensagem.class';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 
+@ApiTags('Usuario')
 @Controller('usuario')
 export class UsuarioController {
 
