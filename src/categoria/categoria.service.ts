@@ -3,7 +3,7 @@ import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { CategoriaEntity } from './categoria.entity';
 import { CreateCategoriaDto } from './dto/create-categoria.dto';
 import { UpdateCategoriaDto } from './dto/update-categoria.dto';
-import { FiltrosListarCategorias } from './dto/find-options-listagem.dto';
+import { FiltrosListarCategorias, Ordem } from './dto/find-options-listagem.dto';
 
 @Injectable()
 export class CategoriaService {
@@ -20,9 +20,25 @@ export class CategoriaService {
             qb.andWhere("c.nome ilike :nome", { nome: findOptions.nome })
         }
 
-        return await qb.getMany().catch(err => {
-            throw new InternalServerErrorException(`Não foi possivel listar as categorias.`)
-        });
+        const count = await qb.getCount()
+
+        if (findOptions.limite) {
+            qb.limit(findOptions.limite);
+            qb.offset(Number(findOptions.offset) > 0 ? findOptions.offset : 0);
+        }
+
+        const order = findOptions.ordem ? (findOptions.ordem === Ordem.Ascendente ? 'ASC' : 'DESC') : 'ASC';
+
+        if ('nome' === findOptions.ordenarPor) {
+            qb.orderBy(`${qb.alias}.nome`, order);
+        }
+
+        return {
+            dados: await qb.getMany().catch(err => {
+                throw new InternalServerErrorException(`Não foi possivel listar as categorias.`)
+            }),
+            total: count
+        }
     }
 
     async findOneForFailById(id: number): Promise<CategoriaEntity> {

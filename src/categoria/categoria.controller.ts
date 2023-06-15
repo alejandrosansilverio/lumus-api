@@ -24,7 +24,7 @@ export class CategoriaController {
     })
     async findAll(
         @Query() filtroListagem?: FiltrosListarCategorias
-    ): Promise<CategoriaEntity[]> {
+    ): Promise<{dados: CategoriaEntity[], total: number}> {
         return await this.categoriaService.findAll(filtroListagem)
     }
 
@@ -61,7 +61,7 @@ export class CategoriaController {
     @Post(':id')
     @ApiOkResponse({ description: 'Serviço executado com sucesso' })
     @ApiInternalServerErrorResponse({
-        description: 'Ocorreu um erro ao incluir Categoria. Contate o administrador do sistema.',
+        description: 'Ocorreu um erro ao atualizar a Categoria. Contate o administrador do sistema.',
     })
     @ApiOperation({
         summary: 'Atualiza uma categoria',
@@ -91,7 +91,7 @@ export class CategoriaController {
 
         await this.categoriaService.delete(id);
 
-        return new Mensagem('O categoria foi excluída com sucesso.');
+        return new Mensagem('A categoria foi excluída com sucesso.');
     }
 
 }

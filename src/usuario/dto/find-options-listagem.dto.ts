@@ -1,3 +1,6 @@
+import { SelectQueryBuilder } from "typeorm";
+import { UsuarioEntity } from "../entities/usuario.entity";
+
 export enum Ordem {
     Ascendente = 'ASC',
     Descendente = 'DESC',
@@ -7,7 +10,8 @@ export enum OrdenarPor {
     Nome = 'nome',
 }
 
-export class FiltrosListarCategorias {
+export class FiltrosListarUsuarios {
+
     nome?: string;
 
     limite?: number;
@@ -19,4 +23,6 @@ export class FiltrosListarCategorias {
     ordem?: Ordem;
 
 }
+
+
 
