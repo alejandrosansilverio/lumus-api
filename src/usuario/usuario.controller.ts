@@ -37,7 +37,7 @@ export class UsuarioController {
     })
     async findAll(
         @Query() filtroListagem?: FiltrosListarUsuarios
-    ): Promise<UsuarioEntity[]> {
+    ): Promise<{dados: UsuarioEntity[], total: number}> {
         return await this.usuarioService.findAll(filtroListagem)
     }
 

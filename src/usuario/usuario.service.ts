@@ -1,7 +1,7 @@
 import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { UsuarioEntity } from './entities/usuario.entity';
 import { DeleteResult, ILike, IsNull, Like, Not, Repository, UpdateResult } from 'typeorm';
-import { FiltrosListarUsuarios } from './dto/find-options-listagem.dto';
+import { FiltrosListarUsuarios, Ordem } from './dto/find-options-listagem.dto';
 import { NivelAcessoEntity } from './entities/nivel-acesso.entity';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
@@ -30,9 +30,25 @@ export class UsuarioService {
             qb.andWhere("u.nome ilike :nome", { nome: findOptions.nome })
         }
 
-        return await qb.getMany().catch(err => {
-            throw new InternalServerErrorException(`Não foi possivel listar os usuarios.`)
-        });
+        const count = await qb.getCount()
+
+        if (findOptions.limite) {
+            qb.limit(findOptions.limite);
+            qb.offset(Number(findOptions.offset) > 0 ? findOptions.offset : 0);
+        }
+
+        const order = findOptions.ordem ? (findOptions.ordem === Ordem.Ascendente ? 'ASC' : 'DESC') : 'ASC';
+
+        if ('nome' === findOptions.ordenarPor) {
+            qb.orderBy(`${qb.alias}.nome`, order);
+        }
+
+        return {
+            dados: await qb.getMany().catch(err => {
+                throw new InternalServerErrorException(`Não foi possivel listar os usuarios.`)
+            }),
+            total: count,
+        };
     }
 
     async create(dto: CreateUsuarioDto): Promise<UsuarioEntity> {
