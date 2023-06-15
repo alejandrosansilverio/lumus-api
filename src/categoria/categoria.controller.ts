@@ -24,7 +24,7 @@ export class CategoriaController {
     })
     async findAll(
         @Query() filtroListagem?: FiltrosListarCategorias
-    ): Promise<CategoriaEntity[]> {
+    ): Promise<{dados: CategoriaEntity[], total: number}> {
         return await this.categoriaService.findAll(filtroListagem)
     }
 
