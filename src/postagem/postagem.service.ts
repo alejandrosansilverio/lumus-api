@@ -13,6 +13,8 @@ export class PostagemService {
 
     async findAll(findOptions?: FiltrosListarPostagens) {
         let qb = this.postagemRepository.createQueryBuilder('p')
+            .leftJoinAndSelect('p.postagemCategorias', 'pc')
+            .leftJoinAndSelect('pc.categoria', 'c')
             .where("p.desativadoEm is null")
 
         if (findOptions && findOptions.titulo) {
@@ -42,6 +44,15 @@ export class PostagemService {
             }),
             total: count
         }
+    }
+
+    async findOneForFailById(id: number): Promise<PostagemEntity> {
+        return await this.postagemRepository.findOneOrFail({
+            relations:['postagemCategorias', 'postagemCategorias.categoria'],
+            where: { id }
+        }).catch(err => {
+            throw new InternalServerErrorException(`Não foi possivel encontrar o usuario com o id ${id}.`)
+        });
     }
 
 }

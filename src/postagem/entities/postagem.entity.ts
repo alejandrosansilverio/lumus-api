@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { PostagemCategoriaEntity } from "./postagem-categoria.entity";
 
 @Entity({ name: 'postagem', schema: process.env.SCHEMA })
 export class PostagemEntity {
@@ -29,6 +30,12 @@ export class PostagemEntity {
 
     @Column({ name: 'desativado_em', nullable: true })
     desativadoEm?: Date;
+
+    @OneToMany(
+        type => PostagemCategoriaEntity,
+        postagemCategoria => postagemCategoria.postagem,
+    )
+    postagemCategorias: PostagemCategoriaEntity[]
 
     constructor(partial: Partial<PostagemEntity>) {
         Object.assign(this, partial);

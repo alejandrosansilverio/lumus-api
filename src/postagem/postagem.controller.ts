@@ -1,6 +1,5 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { PostagemCategoriaEntity } from './entities/postagem-categoria.entity';
 import { PostagemEntity } from './entities/postagem.entity';
 import { PostagemService } from './postagem.service';
 import { FiltrosListarPostagens } from './dto/find-options-listagem.dto';
@@ -15,7 +14,7 @@ export class PostagemController {
 
 
     @Get()
-    @ApiOkResponse({ description: 'Serviço executado com sucesso', type: [PostagemCategoriaEntity] })
+    @ApiOkResponse({ description: 'Serviço executado com sucesso', type: [PostagemEntity] })
     @ApiNotFoundResponse({ description: 'Postagens não foram encontradas.' })
     @ApiOperation({
         summary: 'Retornar as Postagens.',
@@ -25,6 +24,19 @@ export class PostagemController {
         @Query() filtroListagem?: FiltrosListarPostagens
     ): Promise<{ dados: PostagemEntity[], total: number }> {
         return await this.postagemService.findAll(filtroListagem)
+    }
+
+    @Get(':id')
+    @ApiOkResponse({ description: 'Serviço executado com sucesso', type: PostagemEntity })
+    @ApiNotFoundResponse({ description: 'Postagem não encontrada.' })
+    @ApiOperation({
+        summary: 'Retornar a postagem',
+        description: 'Retorna a postagem com base no seu id.',
+    })
+    async findOne(
+        @Param('id', new ParseIntPipe()) id: number
+    ): Promise<PostagemEntity> {
+        return await this.postagemService.findOneForFailById(id)
     }
 
 }
