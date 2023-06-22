@@ -1,10 +1,11 @@
 import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
-import { EntityManager, Repository } from 'typeorm';
+import { EntityManager, Repository, UpdateResult } from 'typeorm';
 import { PostagemEntity } from './entities/postagem.entity';
 import { FiltrosListarPostagens, Ordem } from './dto/find-options-listagem.dto';
 import { CreatePostagemDto } from './dto/create-postagem.dto';
 import { CategoriaService } from 'src/categoria/categoria.service';
 import { PostagemCategoriaEntity } from './entities/postagem-categoria.entity';
+import { UpdatePostagemDto } from './dto/update-postagem.dto';
 @Injectable()
 export class PostagemService {
 
@@ -62,7 +63,7 @@ export class PostagemService {
 
     async create(dto: CreatePostagemDto, entityManager?: EntityManager): Promise<PostagemEntity> {
 
-        await this.validacaoCreate(dto);
+        await this.validacaoCreate(dto.categoriaIds);
 
         const postagem = await this.postagemRepository.save(new PostagemEntity({ ...dto, qtdVisualizacoes: 0 })).catch(err => {
             throw new InternalServerErrorException(`Não foi possivel cadastrar a postagem.`)
@@ -73,16 +74,47 @@ export class PostagemService {
         return postagem;
     }
 
-    async validacaoCreate(dto: CreatePostagemDto) {
+    async validacaoCreate(categoriaIds: number[]) {
         //verifica se as categorias existem
         const categorias = await this.categoriaService.findAll({
-            ids: dto.categoriaIds
+            ids: categoriaIds
         })
 
-        if (categorias.total != dto.categoriaIds.length) throw new InternalServerErrorException("Não foi possível buscar as categorias informadas.")
+        if (categorias.total != categoriaIds.length) throw new InternalServerErrorException("Não foi possível buscar as categorias informadas.")
     }
 
     async createManyPostagemCategoria(postagemId: number, categoriaIds: number[], entityManager?: EntityManager) {
+        const postagemCategorias = categoriaIds.map((id) => new PostagemCategoriaEntity({ postagemId: postagemId, categoriaId: id }))
+        return await this.postagemCategoriaRepository.save(postagemCategorias);
+    }
+
+    async update(id: number, dto: UpdatePostagemDto): Promise<UpdateResult> {
+
+        const postagem = await this.findOneForFailById(id);
+
+        if (dto.categoriaIds && dto.categoriaIds.length > 0) {
+            await this.validacaoCreate(dto.categoriaIds)
+
+            await this.updatePostagemCategoria(postagem.id, dto.categoriaIds)
+        }
+
+        if (dto.titulo) postagem.titulo = dto.titulo;
+
+        if (dto.introducao) postagem.introducao = dto.introducao;
+
+        if (dto.texto) postagem.texto = dto.texto;
+
+        if (dto.autorId) postagem.autorId = dto.autorId;
+
+        postagem.atualizadoEm = new Date();
+
+        return await this.postagemRepository.update({ id }, postagem).catch(err => {
+            throw new InternalServerErrorException(`Não foi possivel atualizar a postagem.`)
+        });
+    }
+
+    async updatePostagemCategoria(postagemId: number, categoriaIds: number[], entityManager?: EntityManager) {
+        await this.postagemCategoriaRepository.delete({ postagemId: postagemId })
         const postagemCategorias = categoriaIds.map((id) => new PostagemCategoriaEntity({ postagemId: postagemId, categoriaId: id }))
         return await this.postagemCategoriaRepository.save(postagemCategorias);
     }

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query } from '@nestjs/common';
 import { ApiInternalServerErrorResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UsuarioEntity } from './entities/usuario.entity';
 import { UsuarioService } from './usuario.service';
@@ -58,7 +58,7 @@ export class UsuarioController {
         return new Mensagem('Usuário criado com sucesso');
     }
 
-    @Post(':id')
+    @Put(':id')
     @ApiOkResponse({ description: 'Serviço executado com sucesso' })
     @ApiInternalServerErrorResponse({
         description: 'Ocorreu um erro ao atualizar o usuário. Contate o administrador do sistema.',

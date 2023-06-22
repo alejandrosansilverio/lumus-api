@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query } from '@nestjs/common';
 import { CategoriaService } from './categoria.service';
 import { CategoriaEntity } from './categoria.entity';
 import { ApiTags, ApiNotFoundResponse, ApiOkResponse, ApiInternalServerErrorResponse, ApiOperation } from '@nestjs/swagger';
@@ -58,7 +58,7 @@ export class CategoriaController {
         return new Mensagem('Categoria criada com sucesso');
     }
 
-    @Post(':id')
+    @Put(':id')
     @ApiOkResponse({ description: 'Serviço executado com sucesso' })
     @ApiInternalServerErrorResponse({
         description: 'Ocorreu um erro ao atualizar a Categoria. Contate o administrador do sistema.',
