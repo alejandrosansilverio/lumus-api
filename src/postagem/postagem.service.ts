@@ -1,5 +1,5 @@
 import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
-import { EntityManager, Repository, UpdateResult } from 'typeorm';
+import { DeleteResult, EntityManager, Repository, UpdateResult } from 'typeorm';
 import { PostagemEntity } from './entities/postagem.entity';
 import { FiltrosListarPostagens, Ordem } from './dto/find-options-listagem.dto';
 import { CreatePostagemDto } from './dto/create-postagem.dto';
@@ -117,6 +117,14 @@ export class PostagemService {
         await this.postagemCategoriaRepository.delete({ postagemId: postagemId })
         const postagemCategorias = categoriaIds.map((id) => new PostagemCategoriaEntity({ postagemId: postagemId, categoriaId: id }))
         return await this.postagemCategoriaRepository.save(postagemCategorias);
+    }
+
+    async delete(id: number): Promise<DeleteResult> {
+        await this.findOneForFailById(id);
+
+        return this.postagemRepository.update({ id }, { desativadoEm: new Date() }).catch(err => {
+            throw new InternalServerErrorException(`Não foi possivel deletar a postagem.`)
+        });
     }
 
 }

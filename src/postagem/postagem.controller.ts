@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Query, Inject, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post, Query, Inject, Put, Delete } from '@nestjs/common';
 import { ApiInternalServerErrorResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PostagemEntity } from './entities/postagem.entity';
 import { PostagemService } from './postagem.service';
@@ -80,6 +80,22 @@ export class PostagemController {
             await this.postagemService.update(id, updatePostagemDto);
         }
         return new Mensagem('Postagem atualizada com sucesso');
+    }
+
+    @Delete(':id/')
+    @ApiOkResponse({ description: 'Serviço executado com sucesso', type: Mensagem })
+    @ApiOperation({
+        summary: 'Apaga uma postagem.',
+        description:
+            'Apaga postagem pelo id.',
+    })
+    async delete(
+        @Param('id', new ParseIntPipe()) id: number,
+    ): Promise<Mensagem> {
+
+        await this.postagemService.delete(id);
+
+        return new Mensagem('A postagem foi excluída com sucesso.');
     }
 
 }
