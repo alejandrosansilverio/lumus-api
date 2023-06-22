@@ -18,5 +18,7 @@ export class FiltrosListarCategorias {
 
     ordem?: Ordem;
 
+    ids?: number[];
+
 }
 

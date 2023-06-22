@@ -1,14 +1,19 @@
 import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { PostagemEntity } from './entities/postagem.entity';
 import { FiltrosListarPostagens, Ordem } from './dto/find-options-listagem.dto';
-
+import { CreatePostagemDto } from './dto/create-postagem.dto';
+import { CategoriaService } from 'src/categoria/categoria.service';
+import { PostagemCategoriaEntity } from './entities/postagem-categoria.entity';
 @Injectable()
 export class PostagemService {
 
     constructor(
         @Inject('POSTAGEM_REPOSITORY')
-        private postagemRepository: Repository<PostagemEntity>
+        private postagemRepository: Repository<PostagemEntity>,
+        @Inject('POSTAGEM_CATEGORIA_REPOSITORY')
+        private postagemCategoriaRepository: Repository<PostagemCategoriaEntity>,
+        private categoriaService: CategoriaService,
     ) { }
 
     async findAll(findOptions?: FiltrosListarPostagens) {
@@ -48,11 +53,38 @@ export class PostagemService {
 
     async findOneForFailById(id: number): Promise<PostagemEntity> {
         return await this.postagemRepository.findOneOrFail({
-            relations:['postagemCategorias', 'postagemCategorias.categoria'],
+            relations: ['postagemCategorias', 'postagemCategorias.categoria'],
             where: { id }
         }).catch(err => {
             throw new InternalServerErrorException(`Não foi possivel encontrar o usuario com o id ${id}.`)
         });
+    }
+
+    async create(dto: CreatePostagemDto, entityManager?: EntityManager): Promise<PostagemEntity> {
+
+        await this.validacaoCreate(dto);
+
+        const postagem = await this.postagemRepository.save(new PostagemEntity({ ...dto, qtdVisualizacoes: 0 })).catch(err => {
+            throw new InternalServerErrorException(`Não foi possivel cadastrar a postagem.`)
+        });
+
+        await this.createManyPostagemCategoria(postagem.id, dto.categoriaIds)
+
+        return postagem;
+    }
+
+    async validacaoCreate(dto: CreatePostagemDto) {
+        //verifica se as categorias existem
+        const categorias = await this.categoriaService.findAll({
+            ids: dto.categoriaIds
+        })
+
+        if (categorias.total != dto.categoriaIds.length) throw new InternalServerErrorException("Não foi possível buscar as categorias informadas.")
+    }
+
+    async createManyPostagemCategoria(postagemId: number, categoriaIds: number[], entityManager?: EntityManager) {
+        const postagemCategorias = categoriaIds.map((id) => new PostagemCategoriaEntity({ postagemId: postagemId, categoriaId: id }))
+        return await this.postagemCategoriaRepository.save(postagemCategorias);
     }
 
 }

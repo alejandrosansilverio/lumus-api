@@ -1,5 +1,5 @@
 import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
-import { DeleteResult, Repository, UpdateResult } from 'typeorm';
+import { DeleteResult, EntityManager, Repository, UpdateResult } from 'typeorm';
 import { CategoriaEntity } from './categoria.entity';
 import { CreateCategoriaDto } from './dto/create-categoria.dto';
 import { UpdateCategoriaDto } from './dto/update-categoria.dto';
@@ -16,8 +16,10 @@ export class CategoriaService {
         let qb = this.categoriaRepository.createQueryBuilder('c')
             .where("c.desativadoEm is null")
 
-        if (findOptions && findOptions.nome) {
-            qb.andWhere("c.nome ilike :nome", { nome: findOptions.nome })
+        if (findOptions) {
+            if (findOptions.nome) qb.andWhere("c.nome ilike :nome", { nome: findOptions.nome });
+
+            if (findOptions.ids && findOptions.ids.length > 0) qb.andWhere("c.id = ANY(:ids)", { ids: findOptions.ids });
         }
 
         const count = await qb.getCount()
